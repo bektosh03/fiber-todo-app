@@ -1,0 +1,285 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a swagger for todo-app",
+        "title": "Fiber ToDo App",
+        "contact": {
+            "name": "API Support",
+            "email": "bektosh@novalab.uz"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8000",
+    "basePath": "/",
+    "paths": {
+        "/workspace/": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Creates a Workspace",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.CreateWorkspace"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Workspace"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "updates a workspace",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.UpdateWorkspace"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Workspace"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workspace/{id}/": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "deletes a workspace",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workspaces/": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "lists all workspaces",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "name",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.WorkspacesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "errors.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "requests.CreateWorkspace": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "requests.UpdateWorkspace": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.Workspace": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.WorkspacesResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "workspaces": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responses.Workspace"
+                    }
+                }
+            }
+        }
+    }
+}

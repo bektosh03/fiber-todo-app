@@ -25,3 +25,5 @@ func ParsePageAndLimit(c *fiber.Ctx) (uint64, uint64, error) {
 
 	return page, limit, nil
 }
+
+//func ParseQueries()

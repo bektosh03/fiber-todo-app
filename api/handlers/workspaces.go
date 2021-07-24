@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/bektosh/fiber-app/api/errors"
 	"github.com/bektosh/fiber-app/api/helpers"
 	"github.com/bektosh/fiber-app/models/requests"
@@ -8,8 +9,15 @@ import (
 	"net/http"
 )
 
+type Filters struct {
+	Page  uint64 `json:"page"`
+	Limit uint64 `json:"limit"`
+	Name  string `json:"name"`
+}
+
 // CreateWorkspace
-// @Summary Creates a Workspace
+// @Security ApiKeyAuth
+// @Summary Create a workspace
 // @Tags Workspaces
 // @Accept json
 // @Produce json
@@ -23,12 +31,13 @@ func (h *Handler) CreateWorkspace(c *fiber.Ctx) error {
 	var req requests.CreateWorkspace
 
 	err := c.BodyParser(&req)
-	if errors.AbortWithBadRequest(c, err, "Invalid JSON supplied") {
-		return nil
+	if err != nil {
+		h.Logger.Println("error while parsing body:", err)
+		errors.AbortWithBadRequest(c, "Invalid JSON supplied")
 	}
 
 	res, err := h.service.CreateWorkspace(req.Name)
-	if errors.AbortWithInternal(c, err, errors.InternalMsg) {
+	if errors.AbortWithError(c, err) {
 		return nil
 	}
 
@@ -37,28 +46,38 @@ func (h *Handler) CreateWorkspace(c *fiber.Ctx) error {
 }
 
 // GetWorkspaces
-// @Summary lists all workspaces
+// @Security ApiKeyAuth
+// @Summary List all workspaces of the user
 // @Tags Workspaces
 // @Accept json
 // @Produce json
 // @Param page query int false "page"
 // @Param limit query int false "limit"
 // @Param name query string false "name"
+// @Param user-id path string true "user-id"
 // @Success 200 {object} responses.WorkspacesResponse
 // @Failure 400 {object} errors.ErrorResponse
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
-// @Router /workspaces/ [GET]
+// @Router /workspace/{user-id}/ [GET]
 func (h *Handler) GetWorkspaces(c *fiber.Ctx) error {
+	var filters Filters
+	err := c.QueryParser(&filters)
+	fmt.Println(filters)
 	page, limit, err := helpers.ParsePageAndLimit(c)
-	if errors.AbortWithBadRequest(c, err, "Bad values for page or limit") {
-		return nil
+	if err != nil {
+		h.Logger.Println("error while parsing page and limit:", err, page, limit)
+		errors.AbortWithBadRequest(c, "Bad values for page and limit")
 	}
 
+	userID := c.Params("user-id")
+	if userID == "" {
+		errors.AbortWithBadRequest(c, "Path parameter 'user-id' must be provided")
+	}
 	name := c.Query("name")
 
 	response, err := h.service.GetWorkspaces(page, limit, name)
-	if errors.AbortWithInternal(c, err, errors.InternalMsg) {
+	if errors.AbortWithError(c, err) {
 		return nil
 	}
 
@@ -66,7 +85,8 @@ func (h *Handler) GetWorkspaces(c *fiber.Ctx) error {
 }
 
 // UpdateWorkspace
-// @Summary updates a workspace
+// @Security ApiKeyAuth
+// @Summary Update a workspace
 // @Tags Workspaces
 // @Accept json
 // @Produce json
@@ -80,12 +100,13 @@ func (h *Handler) UpdateWorkspace(c *fiber.Ctx) error {
 	var req requests.UpdateWorkspace
 
 	err := c.BodyParser(&req)
-	if errors.AbortWithBadRequest(c, err, "Invalid JSON supplied") {
-		return nil
+	if err != nil {
+		h.Logger.Println("error while parsing body:", err)
+		errors.AbortWithBadRequest(c, "Invalid JSON supplied")
 	}
 
 	res, err := h.service.UpdateWorkspace(req)
-	if errors.AbortWithInternal(c, err, errors.InternalMsg) {
+	if errors.AbortWithError(c, err) {
 		return nil
 	}
 
@@ -93,7 +114,8 @@ func (h *Handler) UpdateWorkspace(c *fiber.Ctx) error {
 }
 
 // DeleteWorkspace
-// @Summary deletes a workspace
+// @Security ApiKeyAuth
+// @Summary Delete a workspace
 // @Tags Workspaces
 // @Accept json
 // @Produce json
@@ -113,7 +135,7 @@ func (h *Handler) DeleteWorkspace(c *fiber.Ctx) error {
 		})
 	}
 	err := h.service.DeleteWorkspace(id)
-	if errors.AbortWithInternal(c, err, errors.InternalMsg) {
+	if errors.AbortWithError(c, err) {
 		return nil
 	}
 	return nil

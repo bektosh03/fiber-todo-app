@@ -8,12 +8,14 @@ import (
 	cfg "github.com/bektosh/fiber-app/config"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
+	"time"
 )
 
 func initStorage(config cfg.Config) (*sqlx.DB, *gormadapter.Adapter) {
@@ -44,8 +46,15 @@ func main() {
 	config := cfg.Load()
 	app := fiber.New()
 	app.Use(recover.New())
+	app.Use(cache.New(cache.Config{
+		Next: func(c *fiber.Ctx) bool {
+			return c.Method() != "GET"
+		},
+		Expiration:   10 * time.Minute,
+		CacheControl: true,
+	}))
 	db, adapter := initStorage(config)
-	handler := handlers.New(db)
+	handler := handlers.New(db, &config)
 	jwtRoleAuthorizer, err := middleware.NewJWTRoleAuthorizer(config, handler.Logger, adapter)
 	app.Use(middleware.NewAuthorizer(jwtRoleAuthorizer))
 

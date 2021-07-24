@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"database/sql"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -29,4 +30,24 @@ func transact(db *sqlx.DB, txFunc func(tx *sqlx.Tx) error) (err error) {
 	}()
 	err = txFunc(tx)
 	return err
+}
+
+func nullString(s string) sql.NullString {
+	if len(s) == 0 {
+		return sql.NullString{}
+	}
+	return sql.NullString{
+		String: s,
+		Valid: true,
+	}
+}
+
+func nullInt(i int) sql.NullInt32 {
+	if i == 0 {
+		return sql.NullInt32{}
+	}
+	return sql.NullInt32{
+		Int32: int32(i),
+		Valid: true,
+	}
 }

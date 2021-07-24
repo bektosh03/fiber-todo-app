@@ -7,6 +7,34 @@ definitions:
       message:
         type: string
     type: object
+  requests.CreateCompany:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+    type: object
+  requests.CreateUser:
+    properties:
+      age:
+        type: integer
+      company_id:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      gender:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+      profile_photo:
+        type: string
+      username:
+        type: string
+    type: object
   requests.CreateWorkspace:
     properties:
       name:
@@ -17,6 +45,46 @@ definitions:
       id:
         type: string
       name:
+        type: string
+    type: object
+  responses.CompanyResponse:
+    properties:
+      access_token:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  responses.User:
+    properties:
+      access_token:
+        type: string
+      age:
+        type: integer
+      company_id:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      gender:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      profile_photo:
+        type: string
+      refresh_token:
+        type: string
+      username:
         type: string
     type: object
   responses.Workspace:
@@ -39,7 +107,6 @@ definitions:
           $ref: '#/definitions/responses.Workspace'
         type: array
     type: object
-host: localhost:8000
 info:
   contact:
     email: bektosh@novalab.uz
@@ -48,6 +115,74 @@ info:
   title: Fiber ToDo App
   version: "1.0"
 paths:
+  /company/:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreateCompany'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.CompanyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a company
+      tags:
+      - Company
+  /user/:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: Register user
+      tags:
+      - User
   /workspace/:
     patch:
       consumes:
@@ -78,7 +213,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/errors.ErrorResponse'
-      summary: updates a workspace
+      security:
+      - ApiKeyAuth: []
+      summary: Update a workspace
       tags:
       - Workspaces
     post:
@@ -110,7 +247,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/errors.ErrorResponse'
-      summary: Creates a Workspace
+      security:
+      - ApiKeyAuth: []
+      summary: Create a workspace
       tags:
       - Workspaces
   /workspace/{id}/:
@@ -140,10 +279,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/errors.ErrorResponse'
-      summary: deletes a workspace
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a workspace
       tags:
       - Workspaces
-  /workspaces/:
+  /workspace/{user-id}/:
     get:
       consumes:
       - application/json
@@ -159,6 +300,11 @@ paths:
       - description: name
         in: query
         name: name
+        type: string
+      - description: user-id
+        in: path
+        name: user-id
+        required: true
         type: string
       produces:
       - application/json
@@ -179,7 +325,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/errors.ErrorResponse'
-      summary: lists all workspaces
+      security:
+      - ApiKeyAuth: []
+      summary: List all workspaces of the user
       tags:
       - Workspaces
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

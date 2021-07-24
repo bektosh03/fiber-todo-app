@@ -1,19 +1,46 @@
 package validators
 
-import "regexp"
+import (
+	"net/mail"
+	"unicode"
+)
 
-func ValidateEmail(email string) (bool, error) {
-	regex, err := regexp.Compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])")
+func ValidateEmail(email string) bool {
+	_, err := mail.ParseAddress(email)
 	if err != nil {
-		return false, err
+		return false
 	}
-	return regex.Match([]byte(email)), nil
+	return true
 }
 
-func ValidatePassword(pass string) (bool, error) {
-	regex, err := regexp.Compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$")
-	if err != nil {
-		return false, err
+func ValidatePassword(pass string) bool {
+	var (
+		upp, low, num, sym bool
+		tot                uint8
+	)
+
+	for _, char := range pass {
+		switch {
+		case unicode.IsUpper(char):
+			upp = true
+			tot++
+		case unicode.IsLower(char):
+			low = true
+			tot++
+		case unicode.IsNumber(char):
+			num = true
+			tot++
+		case unicode.IsPunct(char) || unicode.IsSymbol(char):
+			sym = true
+			tot++
+		default:
+			return false
+		}
 	}
-	return regex.Match([]byte(pass)), nil
+
+	if !upp || !low || !num || !sym || tot < 8 {
+		return false
+	}
+
+	return true
 }

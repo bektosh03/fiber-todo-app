@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS user_types;
+
+ALTER TABLE IF EXISTS workspaces
+    DROP COLUMN IF EXISTS owner;
+
+DROP INDEX IF EXISTS company_id_index;
+
+DROP TABLE IF EXISTS companies;
+
+ALTER TABLE IF EXISTS users
+    DROP COLUMN company_id;

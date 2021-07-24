@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/bektosh/fiber-app/api/errors"
 	"github.com/bektosh/fiber-app/config"
 	"github.com/bektosh/fiber-app/pkg/jwt"
@@ -9,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"log"
 	"net/http"
+	"time"
 )
 
 type JWTRoleAuthorizer struct {
@@ -27,7 +29,7 @@ func NewJWTRoleAuthorizer(cfg config.Config, logger *log.Logger, adapter *gormad
 	return &JWTRoleAuthorizer{
 		enforcer:   enforcer,
 		SigningKey: []byte(cfg.JWTSigningKey),
-		logger: logger,
+		logger:     logger,
 	}, nil
 }
 
@@ -39,10 +41,15 @@ func NewAuthorizer(jwtra *JWTRoleAuthorizer) fiber.Handler {
 		if err != nil {
 			jwtra.logger.Println("could not extract claims:", err)
 			return err
+		} else if exp, ok := claims["exp"].(int64); exp < time.Now().Unix() && ok {
+			return c.JSON(errors.ErrorResponse{
+				Code:    http.StatusUnauthorized,
+				Message: "Access token is expired",
+			})
 		}
 
 		role := claims["role"].(string)
-
+		fmt.Println(role, c.Path(), c.Method())
 		ok, err := jwtra.enforcer.Enforce(role, c.Path(), c.Method())
 		if err != nil {
 			jwtra.logger.Println("could not enforce:", err)
@@ -56,7 +63,7 @@ func NewAuthorizer(jwtra *JWTRoleAuthorizer) fiber.Handler {
 			}
 			return c.JSON(errors.ErrorResponse{
 				Code:    http.StatusForbidden,
-				Message: errors.NotEnoughRights,
+				Message: "Access Denied",
 			})
 		}
 

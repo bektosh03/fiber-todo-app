@@ -18,6 +18,7 @@ require (
 	github.com/spf13/cast v1.3.1
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/swaggo/swag v1.7.0
+	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
 	golang.org/x/sys v0.0.0-20210603125802-9665404d3644 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	gorm.io/driver/postgres v1.0.8

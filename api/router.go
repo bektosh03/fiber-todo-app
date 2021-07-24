@@ -18,19 +18,25 @@ type Body struct {
 // @description This is a swagger for todo-app
 // @contact.name API Support
 // @contact.email bektosh@novalab.uz
-// @host localhost:8000
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 // @BasePath /
 func SetUpRoutes(app *fiber.App, h *handlers.Handler) {
+	// Workspace
 	app.Post("/workspace/", h.CreateWorkspace)
-	app.Get("/workspaces/", h.GetWorkspaces)
+	app.Get("/workspace/:user-id/", h.GetWorkspaces)
 	app.Patch("/workspace/", h.UpdateWorkspace)
 	app.Delete("/workspace/:id/", h.DeleteWorkspace)
-	//app.Post("/user/", h.)
-	//app.Get("/todos/", h.GetToDos)
-	//app.Post("/todos/", h.CreateToDo)
-	//app.Delete("/todos/:id/", h.DeleteToDo)
-	//app.Put("/todos/:id/", h.UpdateToDo)
-	//app.Get("/todos/:id/", h.GetToDoByID)
+
+	// Company
+	app.Post("/company/", h.CreateCompany)
+
+	// User
+	app.Post("/user/", h.CreateUser)
+	//app.Get("/user/:company-id/", h.GetCompanyUsers)
+
+	// Swagger
 	app.Get("/swagger/*", swagger.New(swagger.Config{
 		URL:         "/swagger/doc.json",
 		DeepLinking: false,
